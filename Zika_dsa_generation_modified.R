@@ -26,40 +26,60 @@ decision_model <- function(l_params_all, verbose = FALSE) {
     p_OA_s1 <- p_Mosquito_spraying*pOA
     p_D_s1 <- p_Mosquito_spraying*pDie_birth
     p_ZH_s1 <- p_Mosquito_spraying*(1-(e_mic+pGbs+pOA+pDie_birth))
-    p_H_s1 <- 1-p_Mosquito_spraying
+    p_H_s1 <- 1-(p_Mic_s1+p_Gbs_s1+p_OA_s1+p_D_s1+p_ZH_s1)
     p_Mic_s2 <- p_Limiting_movement*e_mic
     p_Gbs_s2 <- p_Limiting_movement*pGbs
     p_OA_s2 <- p_Limiting_movement*pOA
     p_D_s2 <- p_Limiting_movement*pDie_birth
     p_ZH_s2 <- p_Limiting_movement*(1-(e_mic+pGbs+pOA+pDie_birth))
-    p_H_s2 <- 1-p_Limiting_movement
+    p_H_s2 <- 1-(p_Mic_s2+p_Gbs_s2+p_OA_s2+p_D_s2+p_ZH_s2)
     p_Mic_s3 <- p_Zika_testing*e_mic
     p_Gbs_s3<-p_Zika_testing*pGbs
     p_OA_s3<-p_Zika_testing*pOA
     p_D_s3<-p_Zika_testing*pDie_birth
     p_ZH_s3<-p_Zika_testing*(1-(e_mic+pGbs+pOA+pDie_birth))
-    p_H_s3<-1-p_Zika_testing
+    p_H_s3<-1-(p_Mic_s3+p_Gbs_s3+p_OA_s3+p_D_s3+p_ZH_s3)
     p_Mic_s4<-p_Condom_provision*e_mic
     p_Gbs_s4<-p_Condom_provision*pGbs
     p_OA_s4<-p_Condom_provision*pOA
     p_D_s4<-p_Condom_provision*pDie_birth
     p_ZH_s4<-p_Condom_provision*(1-(e_mic+pGbs+pOA+pDie_birth))
-    p_H_s4<-1-p_Condom_provision
+    p_H_s4<-1-(p_Mic_s4+p_Gbs_s4+p_OA_s4+p_D_s4+p_ZH_s4)
     p_Mic_s5<-p_Do_nothing*e_mic
     p_Gbs_s5<-p_Do_nothing*pGbs
     p_OA_s5<-p_Do_nothing*pOA
     p_D_s5<-p_Do_nothing*pDie_birth
     p_ZH_s5<-p_Do_nothing*(1-(e_mic+pGbs+pOA+pDie_birth))
-    p_H_s5<-1-p_Do_nothing
+    p_H_s5<-1-(p_Mic_s5+p_Gbs_s5+p_OA_s5+p_D_s5+p_ZH_s5)
     
     ####### INITIALIZATION ##########################################
     #
     # create the cohort trace
-    m_M <- matrix(NA, nrow = n_t + 1 , 
+    m_M1 <- matrix(NA, nrow = n_t + 1 , 
+                  ncol = n_s,
+                  dimnames = list(0:n_t, v_n))     # create Markov trace (n_t + 1 because R doesn't understand  Cycle 0)
+    # create the cohort trace
+    m_M2 <- matrix(NA, nrow = n_t + 1 , 
+                  ncol = n_s,
+                  dimnames = list(0:n_t, v_n))     # create Markov trace (n_t + 1 because R doesn't understand  Cycle 0)
+    # create the cohort trace
+    m_M3 <- matrix(NA, nrow = n_t + 1 , 
+                  ncol = n_s,
+                  dimnames = list(0:n_t, v_n))     # create Markov trace (n_t + 1 because R doesn't understand  Cycle 0)
+    # create the cohort trace
+    m_M4 <- matrix(NA, nrow = n_t + 1 , 
+                  ncol = n_s,
+                  dimnames = list(0:n_t, v_n))     # create Markov trace (n_t + 1 because R doesn't understand  Cycle 0)
+    # create the cohort trace
+    m_M5<- matrix(NA, nrow = n_t + 1 , 
                   ncol = n_s,
                   dimnames = list(0:n_t, v_n))     # create Markov trace (n_t + 1 because R doesn't understand  Cycle 0)
     
-    m_M[1, ] <- c(1,0,0,0,0,0)                      # initialize Markov trace
+    
+    
+    
+    
+    #m_M[1, ] <- c(1,0,0,0,0,0)                      # initialize Markov trace
     #Calculate initial states of the transition matrix under each strategy
     m_M1[1, ] <- c(p_Mic_s1, p_Gbs_s1, p_OA_s1, p_D_s1, p_ZH_s1, p_H_s1)
     m_M2[1, ] <- c(p_Mic_s2, p_Gbs_s2, p_OA_s2, p_D_s2, p_ZH_s2, p_H_s2)
@@ -336,34 +356,98 @@ decision_model <- function(l_params_all, verbose = FALSE) {
   
       ############# PROCESS ###########################################
     
-    for (t in 1:n_t){                              # throughout the number of cycles
-       m_M[t + 1, ] <- m_M[t, ] %*% m_P[,, t]           # estimate the Markov trace for cycle the next cycle (t + 1)
+    for (t in 1:n_t){                              # throughout the number of cycles (Strategy 1)
+       m_M1[t + 1, ] <- m_M1[t, ] %*% m_P1[,, t]           # estimate the Markov trace for cycle the next cycle (t + 1)
+    }
+    for (t in 1:n_t){                              # throughout the number of cycles (Strategy 2)
+      m_M2[t + 1, ] <- m_M2[t, ] %*% m_P2[,, t]           # estimate the Markov trace for cycle the next cycle (t + 1)
+    }
+    for (t in 1:n_t){                              # throughout the number of cycles (Strategy 3)
+      m_M3[t + 1, ] <- m_M3[t, ] %*% m_P3[,, t]           # estimate the Markov trace for cycle the next cycle (t + 1)
+    }
+    for (t in 1:n_t){                              # throughout the number of cycles (Strategy 4)
+      m_M4[t + 1, ] <- m_M4[t, ] %*% m_P4[,, t]           # estimate the Markov trace for cycle the next cycle (t + 1)
+    }
+    for (t in 1:n_t){                              # throughout the number of cycles (Strategy 5)
+      m_M5[t + 1, ] <- m_M5[t, ] %*% m_P5[,, t]           # estimate the Markov trace for cycle the next cycle (t + 1)
     }
     
     ####### EPIDEMIOLOGICAL OUTPUT  ###########################################
     #### Overall Survival (OS) ####
-    v_os <- 1 - m_M[, "D"]                # calculate the overall survival (OS) probability for no treatment
+    v_os1 <- 1 - m_M1[, "D"]                # calculate the overall survival (OS) probability for Strategy 1
+    v_os2 <- 1 - m_M2[, "D"]                # calculate the overall survival (OS) probability for Strategy 2
+    v_os3 <- 1 - m_M3[, "D"]                # calculate the overall survival (OS) probability for Strategy 3
+    v_os4 <- 1 - m_M4[, "D"]                # calculate the overall survival (OS) probability for Strategy 4
+    v_os5 <- 1 - m_M5[, "D"]                # calculate the overall survival (OS) probability for Strategy 5
     
     #### Microcephaly prevalence #####
     # v_prev_M <- rowSums(m_M[, c("M")])/v_os
-    v_prev_M <- m_M[, c("M")]/v_os
-    
+    v_prev_M1 <- m_M1[, c("M")]/v_os1
+    v_prev_M2 <- m_M2[, c("M")]/v_os2
+    v_prev_M3 <- m_M3[, c("M")]/v_os3
+    v_prev_M4 <- m_M4[, c("M")]/v_os4
+    v_prev_M5 <- m_M5[, c("M")]/v_os5
     # v_prev_GBS<- rowSums(m_M[, c("GBS")])/v_os
-    v_prev_GBS<- m_M[, c("GBS")]/v_os
+    v_prev_GBS1<- m_M1[, c("GBS")]/v_os1
+    v_prev_GBS2<- m_M2[, c("GBS")]/v_os2
+    v_prev_GBS3<- m_M3[, c("GBS")]/v_os3
+    v_prev_GBS4<- m_M4[, c("GBS")]/v_os4
+    v_prev_GBS5<- m_M5[, c("GBS")]/v_os5
     
     # v_prev_OA<- rowSums(m_M[, c("OA")])/v_os
-    v_prev_OA<- m_M[, c("OA")]/v_os
+    v_prev_OA1<- m_M1[, c("OA")]/v_os1
+    v_prev_OA2<- m_M2[, c("OA")]/v_os2
+    v_prev_OA3<- m_M3[, c("OA")]/v_os3
+    v_prev_OA4<- m_M4[, c("OA")]/v_os4
+    v_prev_OA5<- m_M5[, c("OA")]/v_os5
     
     ####### RETURN OUTPUT  ###########################################
-    out <- list(m_M = m_M,
-                m_P = m_P,
-                Surv = v_os[-1],
-                Prev_M = v_prev_M[-1],
-                Prev_GBS = v_prev_GBS[-1],
-                Prev_OA = v_prev_OA[-1])
+    out1 <- list(m_M1 = m_M1,
+                m_P1 = m_P1,
+                Surv1 = v_os1[-1],
+                Prev_M1 = v_prev_M1[-1],
+                Prev_GBS1 = v_prev_GBS1[-1],
+                Prev_OA1 = v_prev_OA1[-1])
                 #PropSick = v_prop_S1[c(11, 21, 31)]
     
-    return(out)
+    return(out1)
+    out2 <- list(m_M2 = m_M2,
+                m_P2 = m_P2,
+                Surv2 = v_os2[-1],
+                Prev_M2 = v_prev_M2[-1],
+                Prev_GBS2 = v_prev_GBS2[-1],
+                Prev_OA2 = v_prev_OA2[-1])
+    #PropSick = v_prop_S1[c(11, 21, 31)]
+    
+    return(out2)
+    out3 <- list(m_M3 = m_M3,
+                m_P3 = m_P3,
+                Surv3 = v_os3[-1],
+                Prev_M3 = v_prev_M3[-1],
+                Prev_GBS3 = v_prev_GBS3[-1],
+                Prev_OA3 = v_prev_OA3[-1])
+    #PropSick = v_prop_S1[c(11, 21, 31)]
+    
+    return(out3)
+    out4 <- list(m_M4 = m_M4,
+                m_P4 = m_P4,
+                Surv4 = v_os4[-1],
+                Prev_M4 = v_prev_M4[-1],
+                Prev_GBS4 = v_prev_GBS4[-1],
+                Prev_OA4 = v_prev_OA4[-1])
+    #PropSick = v_prop_S1[c(11, 21, 31)]
+    
+    return(out4)
+    out5 <- list(m_M5 = m_M5,
+                m_P5 = m_P5,
+                Surv5 = v_os5[-1],
+                Prev_M5 = v_prev_M5[-1],
+                Prev_GBS5 = v_prev_GBS5[-1],
+                Prev_OA5 = v_prev_OA5[-1])
+    #PropSick = v_prop_S1[c(11, 21, 31)]
+    
+    return(out5)
+    
   }
   )
 }
@@ -393,8 +477,8 @@ calculate_ce_out <- function(l_params_all, n_wtp = 4250262){
     e_Do_nothing_mic <-p_Do_nothing*e_mic #Do nothing Zika infection
     
     ## Create discounting vectors
-    v_dwc <- 1 / ((1 + d_e) ^ (0:(n_t))) # vector with discount weights for costs
-    v_dwe <- 1 / ((1 + d_c) ^ (0:(n_t))) # vector with discount weights for QALYs
+    v_dwc <- 1 / ((1 + d_c) ^ (0:(n_t))) # vector with discount weights for costs
+    v_dwe <- 1 / ((1 + d_e) ^ (0:(n_t))) # vector with discount weights for QALYs
     
     ## Run STM model at a parameter set for each intervention
     l_model_out_s1 <- decision_model(l_params_all = l_params_all)
@@ -404,11 +488,11 @@ calculate_ce_out <- function(l_params_all, n_wtp = 4250262){
     l_model_out_s5    <- decision_model(l_params_all = l_params_all)
     
     ## Cohort trace by treatment 
-    m_M_s1 <- l_model_out_s1$m_M # Mosquito spraying
-    m_M_s2 <- l_model_out_s2$m_M # Limiting movement
-    m_M_s3 <- l_model_out_s3$m_M # Zika Testing
-    m_M_s4 <- l_model_out_s4$m_M # Condom Provision
-    m_M_s5 <- l_model_out_s5$m_M # Do nothing
+    m_M_s1 <- l_model_out_s1$m_M1 # Mosquito spraying
+    m_M_s2 <- l_model_out_s2$m_M2 # Limiting movement
+    m_M_s3 <- l_model_out_s3$m_M3 # Zika Testing
+    m_M_s4 <- l_model_out_s4$m_M4 # Condom Provision
+    m_M_s5 <- l_model_out_s5$m_M5 # Do nothing
     
       ## Vectors with costs and utilities by treatment
     v_u_s1 <- c(u_Mic, u_Gbs, u_OA, u_D, u_ZH, u_H)
