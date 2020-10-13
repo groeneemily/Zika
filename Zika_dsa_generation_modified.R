@@ -633,8 +633,8 @@ my_params_basecase <- list(pLater_mic = 0.01,
 # v_mic_avert <- -(v_mic - rep(v_mic["Do Nothing"],length(v_names_str)))
 
 #### 05 Compute ICERs of Decision Tree ####
-m_cea <- calculate_icers(df_ce)
-m_cea
+# m_cea <- calculate_icers(df_ce)
+# m_cea
 
 #### 06 Plot frontier of Decision Tree ####
 #front_ce <- getFrontier(CEmat = m_cea, plot = F)
